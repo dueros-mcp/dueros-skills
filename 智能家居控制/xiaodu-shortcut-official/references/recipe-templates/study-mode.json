@@ -1,0 +1,77 @@
+{
+  "schema_version": "1",
+  "id": "study-mode",
+  "name": "学习模式",
+  "description": "进入专注学习：冷白灯 + 关电视 + 播报欢迎",
+  "placeholders": {
+    "study_light": {
+      "prompt": "书房学习灯叫什么？",
+      "kind": "iot_device",
+      "required": true,
+      "default_key": "study_room_light"
+    },
+    "tv": {
+      "prompt": "要关掉的电视叫什么？没有就跳过",
+      "kind": "iot_device",
+      "required": false,
+      "default_key": "living_room_tv"
+    },
+    "smart_screen": {
+      "prompt": "用哪台小度屏播报？",
+      "kind": "smart_screen",
+      "required": true,
+      "default_key": "smart_screen"
+    },
+    "scene": {
+      "prompt": "如果你在 xiaodu-iot 配了对应场景，它叫什么？没有就跳过",
+      "kind": "scene",
+      "required": false,
+      "default_key": "study_scene"
+    }
+  },
+  "triggers": {
+    "primary": "开始学习模式",
+    "aliases": ["进入学习模式", "学习时间到了", "我要学习了"]
+  },
+  "steps": [
+    {
+      "bucket": "scene",
+      "action": "try_scene",
+      "scene_name": "{{scene}}",
+      "optional": true,
+      "on_success": "stop_remaining_steps_in_same_bucket",
+      "skip_if_placeholder_empty": "scene"
+    },
+    {
+      "bucket": "lights",
+      "action": "control_iot",
+      "params": { "device": "{{study_light}}", "action": "turnOn" }
+    },
+    {
+      "bucket": "lights",
+      "action": "control_iot",
+      "optional": true,
+      "params": {
+        "device": "{{study_light}}",
+        "action": "set",
+        "attribute": "color_temperature",
+        "value": "cool"
+      }
+    },
+    {
+      "bucket": "display-off",
+      "action": "control_iot",
+      "optional": true,
+      "skip_if_placeholder_empty": "tv",
+      "params": { "device": "{{tv}}", "action": "turnOff" }
+    },
+    {
+      "bucket": "smart-screen-speech",
+      "action": "speak",
+      "params": {
+        "device_name": "{{smart_screen}}",
+        "text": "学习模式已开启，祝专注高效"
+      }
+    }
+  ]
+}

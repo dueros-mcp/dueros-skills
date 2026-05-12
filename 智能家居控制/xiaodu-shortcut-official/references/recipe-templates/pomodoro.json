@@ -1,0 +1,51 @@
+{
+  "schema_version": "1",
+  "id": "pomodoro",
+  "name": "番茄钟",
+  "description": "25 分钟专注番茄钟：关电视 + 关客厅射灯 + 播报开始",
+  "placeholders": {
+    "tv": {
+      "prompt": "客厅电视叫什么名字？",
+      "kind": "iot_device",
+      "required": true,
+      "default_key": "living_room_tv"
+    },
+    "spot_light": {
+      "prompt": "客厅射灯叫什么？没有就跳过",
+      "kind": "iot_device",
+      "required": false,
+      "default_key": "living_room_spot_light"
+    },
+    "smart_screen": {
+      "prompt": "用哪台小度屏播报？",
+      "kind": "smart_screen",
+      "required": true,
+      "default_key": "smart_screen"
+    }
+  },
+  "triggers": {
+    "primary": "番茄钟",
+    "aliases": ["开始番茄钟", "进入番茄钟", "开一个番茄钟"]
+  },
+  "steps": [
+    {
+      "bucket": "display-off",
+      "action": "control_iot",
+      "params": { "device": "{{tv}}", "action": "turnOff" }
+    },
+    {
+      "bucket": "lights-off",
+      "action": "control_iot",
+      "skip_if_placeholder_empty": "spot_light",
+      "params": { "device": "{{spot_light}}", "action": "turnOff" }
+    },
+    {
+      "bucket": "smart-screen-speech",
+      "action": "speak",
+      "params": {
+        "device_name": "{{smart_screen}}",
+        "text": "番茄钟开始，25 分钟后见"
+      }
+    }
+  ]
+}

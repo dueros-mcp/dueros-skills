@@ -1,0 +1,64 @@
+{
+  "schema_version": "1",
+  "id": "party-time",
+  "name": "派对时间",
+  "description": "家庭派对：客厅灯彩色 + 播报开场",
+  "placeholders": {
+    "living_light": {
+      "prompt": "客厅主灯叫什么？",
+      "kind": "iot_device",
+      "required": true,
+      "default_key": "living_room_light"
+    },
+    "smart_screen": {
+      "prompt": "用哪台小度屏播报？",
+      "kind": "smart_screen",
+      "required": true,
+      "default_key": "smart_screen"
+    },
+    "scene": {
+      "prompt": "有配好的派对场景吗？没有就跳过",
+      "kind": "scene",
+      "required": false,
+      "default_key": "party_scene"
+    }
+  },
+  "triggers": {
+    "primary": "派对时间",
+    "aliases": ["开始派对", "进入派对模式", "派对模式"]
+  },
+  "steps": [
+    {
+      "bucket": "scene",
+      "action": "try_scene",
+      "scene_name": "{{scene}}",
+      "optional": true,
+      "on_success": "stop_remaining_steps_in_same_bucket",
+      "skip_if_placeholder_empty": "scene"
+    },
+    {
+      "bucket": "lights",
+      "action": "control_iot",
+      "params": { "device": "{{living_light}}", "action": "turnOn" }
+    },
+    {
+      "bucket": "lights",
+      "action": "control_iot",
+      "optional": true,
+      "params": {
+        "device": "{{living_light}}",
+        "action": "set",
+        "attribute": "color",
+        "value": "purple"
+      }
+    },
+    {
+      "bucket": "smart-screen-speech",
+      "action": "speak",
+      "params": {
+        "device_name": "{{smart_screen}}",
+        "text": "派对时间，欢迎光临"
+      }
+    }
+  ]
+}
